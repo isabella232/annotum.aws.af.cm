@@ -8,8 +8,16 @@
 
 /** WordPress Administration Bootstrap */
 require_once('./admin.php');
+
+if ( ! $taxnow )
+	wp_die( __( 'Invalid taxonomy' ) );
+
 $tax = get_taxonomy( $taxnow );
-if ( !current_user_can( $tax->cap->manage_terms ) )
+
+if ( ! $tax )
+	wp_die( __( 'Invalid taxonomy' ) );
+
+if ( ! current_user_can( $tax->cap->manage_terms ) )
 	wp_die( __( 'Cheatin&#8217; uh?' ) );
 
 $wp_list_table = _get_list_table('WP_Terms_List_Table');
@@ -113,10 +121,12 @@ break;
 case 'edit':
 	$title = $tax->labels->edit_item;
 
-	require_once ( 'admin-header.php' );
 	$tag_ID = (int) $_REQUEST['tag_ID'];
 
 	$tag = get_term( $tag_ID, $taxonomy, OBJECT, 'edit' );
+	if ( ! $tag )
+		wp_die( __( 'You attempted to edit an item that doesn&#8217;t exist. Perhaps it was deleted?' ) );
+	require_once ( 'admin-header.php' );
 	include( './edit-tag-form.php' );
 
 break;
@@ -127,6 +137,10 @@ case 'editedtag':
 
 	if ( !current_user_can( $tax->cap->edit_terms ) )
 		wp_die( __( 'Cheatin&#8217; uh?' ) );
+
+	$tag = get_term( $tag_ID, $taxonomy );
+	if ( ! $tag )
+		wp_die( __( 'You attempted to edit an item that doesn&#8217;t exist. Perhaps it was deleted?' ) );
 
 	$ret = wp_update_term( $tag_ID, $taxonomy, $_POST );
 
@@ -178,7 +192,7 @@ if ( 'category' == $taxonomy || 'link_category' == $taxonomy || 'post_tag' == $t
 	elseif ( 'link_category' == $taxonomy )
 		$help = '<p>' . __( 'You can create groups of links by using link categories. Link category names must be unique and link categories are separate from the categories you use for posts.' ) . '</p>';
 	else
-		$help = '<p>' . __( 'You can assign keywords to your posts using Post Tags. Unlike categories, tags have no hierarchy, meaning there&#8217;s no relationship from one tag to another.' ) . '</p>';
+		$help = '<p>' . __( 'You can assign keywords to your posts using Tags. Unlike categories, tags have no hierarchy, meaning there&#8217;s no relationship from one tag to another.' ) . '</p>';
 
 	if ( 'link_category' == $taxonomy )
 		$help .= '<p>' . __( 'You can delete link categories in the Bulk Action pulldown, but that action does not delete the links within the category. Instead, it moves them to the default link category.' ) . '</p>';
@@ -205,19 +219,23 @@ if ( 'category' == $taxonomy || 'link_category' == $taxonomy || 'post_tag' == $t
 	if ( 'category' == $taxonomy || 'post_tag' == $taxonomy  )
 		$help .= '<li>' . __( '<strong>Description</strong> - The description is not prominent by default; however, some themes may display it.' ) . '</li>' .
 		'</ul>' .
-		'<p>' . __( 'You can change the display of this screen using the Screen Options tab to set how many items are displayed per screen and to display/hide columns in the table.' ) . '</p>' .
-		'<p><strong>' . __( 'For more information:' ) . '</strong></p>';
+		'<p>' . __( 'You can change the display of this screen using the Screen Options tab to set how many items are displayed per screen and to display/hide columns in the table.' ) . '</p>';
+
+	add_contextual_help($current_screen, $help);
+
+	$help = '<p><strong>' . __( 'For more information:' ) . '</strong></p>';
 
 	if ( 'category' == $taxonomy )
 		$help .= '<p>' . __( '<a href="http://codex.wordpress.org/Posts_Categories_Screen" target="_blank">Documentation on Categories</a>' ) . '</p>';
 	elseif ( 'link_category' == $taxonomy )
 		$help .= '<p>' . __( '<a href="http://codex.wordpress.org/Links_Link_Categories_Screen" target="_blank">Documentation on Link Categories</a>' ) . '</p>';
 	else
-		$help .= '<p>' . __( '<a href="http://codex.wordpress.org/Posts_Post_Tags_Screen" target="_blank">Documentation on Post Tags</a>' ) . '</p>';
+		$help .= '<p>' . __( '<a href="http://codex.wordpress.org/Posts_Tags_Screen" target="_blank">Documentation on Tags</a>' ) . '</p>';
 
 	$help .= '<p>' . __('<a href="http://wordpress.org/support/" target="_blank">Support Forums</a>') . '</p>';
 
-	add_contextual_help($current_screen, $help);
+	get_current_screen()->set_help_sidebar( $help );
+
 	unset($help);
 }
 

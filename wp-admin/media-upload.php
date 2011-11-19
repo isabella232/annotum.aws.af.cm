@@ -18,8 +18,7 @@ require_once('./admin.php');
 if (!current_user_can('upload_files'))
 	wp_die(__('You do not have permission to upload files.'));
 
-wp_enqueue_script('swfupload-all');
-wp_enqueue_script('swfupload-handlers');
+wp_enqueue_script('plupload-handlers');
 wp_enqueue_script('image-edit');
 wp_enqueue_script('set-post-thumbnail' );
 wp_enqueue_style('imgareaselect');
@@ -64,18 +63,27 @@ if ( isset($_GET['inline']) ) {
 
 	add_contextual_help( $current_screen,
 '<p>' . __('You can upload media files here without creating a post first. This allows you to upload files to use with posts and pages later and/or to get a web link for a particular file that you can share.') . '</p>' .
-		'<p>' . __('There are two options for uploading files: <em>Select Files</em> will open the Flash-based uploader (multiple file upload allowed), or you can use the <em>Browser Uploader</em>. Clicking <em>Select Files</em> opens a navigation window showing you files in your operating system. Selecting <em>Open</em> after clicking on the file you want activates a progress bar on the uploader screen. Basic image editing is available after upload is complete. Make sure you click <em>Save</em> before leaving this screen.') . '</p>' .
+		'<p>' . __('There are two options for uploading files: <em>Select Files</em> will open the Flash-based uploader (multiple file upload allowed), or you can use the <em>Browser Uploader</em>. Clicking <em>Select Files</em> opens a navigation window showing you files in your operating system. Selecting <em>Open</em> after clicking on the file you want activates a progress bar on the uploader screen. Basic image editing is available after upload is complete. Make sure you click <em>Save</em> before leaving this screen.') . '</p>'
+	);
+
+	get_current_screen()->set_help_sidebar(
 		'<p><strong>' . __('For more information:') . '</strong></p>' .
 		'<p>' . __('<a href="http://codex.wordpress.org/Media_Add_New_Screen" target="_blank">Documentation on Uploading Media Files</a>') . '</p>' .
 		'<p>' . __('<a href="http://wordpress.org/support/" target="_blank">Support Forums</a>') . '</p>'
 	);
 
-	require_once('./admin-header.php'); ?>
+	require_once('./admin-header.php');
+	
+	$form_class = 'media-upload-form type-form validate';
+
+	if ( get_user_setting('uploader') )
+		$form_class .= ' html-uploader';
+	?>
 	<div class="wrap">
 	<?php screen_icon(); ?>
 	<h2><?php echo esc_html( $title ); ?></h2>
 
-	<form enctype="multipart/form-data" method="post" action="<?php echo admin_url('media-upload.php?inline=&amp;upload-page-form='); ?>" class="media-upload-form type-form validate" id="file-form">
+	<form enctype="multipart/form-data" method="post" action="<?php echo admin_url('media-upload.php?inline=&amp;upload-page-form='); ?>" class="<?php echo $form_class; ?>" id="file-form">
 
 	<?php media_upload_form(); ?>
 
@@ -92,8 +100,8 @@ if ( isset($_GET['inline']) ) {
 	</script>
 	<input type="hidden" name="post_id" id="post_id" value="0" />
 	<?php wp_nonce_field('media-form'); ?>
-	<div id="media-items" class="hide-if-no-js"> </div>
-	<?php submit_button( __( 'Save all changes' ), 'button savebutton hide-if-no-js', 'save' ); ?>
+	<div id="media-items" class="hide-if-no-js"></div>
+	<?php submit_button( __( 'Save all changes' ), 'button savebutton hidden', 'save' ); ?>
 	</form>
 	</div>
 
@@ -117,7 +125,7 @@ if ( isset($_GET['inline']) ) {
 	$body_id = 'media-upload';
 
 	// let the action code decide how to handle the request
-	if ( $tab == 'type' || $tab == 'type_url' )
+	if ( $tab == 'type' || $tab == 'type_url' || ! array_key_exists( $tab , media_upload_tabs() ) )
 		do_action("media_upload_$type");
 	else
 		do_action("media_upload_$tab");

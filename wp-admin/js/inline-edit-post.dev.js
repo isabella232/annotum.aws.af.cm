@@ -123,13 +123,13 @@ inlineEditPost = {
 	},
 
 	edit : function(id) {
-		var t = this, fields, editRow, rowData, cats, status, pageOpt, pageLevel, nextPage, pageLoop = true, nextLevel, tax;
+		var t = this, fields, editRow, rowData, status, pageOpt, pageLevel, nextPage, pageLoop = true, nextLevel, cur_format, f;
 		t.revert();
 
 		if ( typeof(id) == 'object' )
 			id = t.getId(id);
 
-		fields = ['post_title', 'post_name', 'post_author', '_status', 'jj', 'mm', 'aa', 'hh', 'mn', 'ss', 'post_password'];
+		fields = ['post_title', 'post_name', 'post_author', '_status', 'jj', 'mm', 'aa', 'hh', 'mn', 'ss', 'post_password', 'post_format'];
 		if ( t.type == 'page' )
 			fields.push('post_parent', 'menu_order', 'page_template');
 
@@ -151,7 +151,15 @@ inlineEditPost = {
 			$('label.inline-edit-author', editRow).hide();
 		}
 
-		for ( var f = 0; f < fields.length; f++ ) {
+		// hide unsupported formats, but leave the current format alone
+		cur_format = $('.post_format', rowData).text();
+		$('option.unsupported', editRow).each(function() {
+			var $this = $(this);
+			if ( $this.val() != cur_format )
+				$this.remove();
+		});
+
+		for ( f = 0; f < fields.length; f++ ) {
 			$(':input[name="' + fields[f] + '"]', editRow).val( $('.'+fields[f], rowData).text() );
 		}
 
@@ -171,17 +179,18 @@ inlineEditPost = {
 				$('ul.'+taxname+'-checklist :checkbox', editRow).val(term_ids.split(','));
 			}
 		});
+
 		//flat taxonomies
 		$('.tags_input', rowData).each(function(){
-			var terms = $(this).text();
+			var terms = $(this).text(),
+				taxname = $(this).attr('id').replace('_' + id, ''),
+				textarea = $('textarea.tax_input_' + taxname, editRow);
 
-			if ( terms ) {
-				taxname = $(this).attr('id').replace('_'+id, '');
-				$('textarea.tax_input_'+taxname, editRow).val(terms);
-				$('textarea.tax_input_'+taxname, editRow).suggest( 'admin-ajax.php?action=ajax-tag-search&tax='+taxname, { delay: 500, minchars: 2, multiple: true, multipleSep: ", " } );
-			}
+			if ( terms )
+				textarea.val(terms);
+
+			textarea.suggest( 'admin-ajax.php?action=ajax-tag-search&tax='+taxname, { delay: 500, minchars: 2, multiple: true, multipleSep: ", " } );
 		});
-
 
 		// handle the post status
 		status = $('._status', rowData).text();
