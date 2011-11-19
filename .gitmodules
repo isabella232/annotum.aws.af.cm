@@ -1,3 +1,0 @@
-[submodule "wp-content/themes"]
-	path = wp-content/themes
-	url = git://github.com/Annotum/Annotum.git
