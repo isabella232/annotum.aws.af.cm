@@ -1,6 +1,16 @@
 <?php
 
 /**
+ * @package anno
+ * This file is part of the Annotum theme for WordPress
+ * Built on the Carrington theme framework <http://carringtontheme.com>
+ *
+ * Copyright 2008-2011 Crowd Favorite, Ltd. All rights reserved. <http://crowdfavorite.com>
+ * Released under the GPL license
+ * http://www.opensource.org/licenses/gpl-license.php
+ */
+
+/**
  * Array of user meta keys and their labels
  */  
 global $anno_user_meta;
@@ -110,7 +120,6 @@ add_action('init', 'anno_profile_request_handler', 0);
  * Takes a snapshot of author/co-authors user data and stores it in post data
  * Only stores on publish and does not overwrite existing.
  */ 
-//TODO Order
 function anno_users_snapshot($post_id, $post) {
 	if ($post->post_status == 'publish' && $post->post_type == 'article') {
 		$authors = anno_get_authors($post->ID);

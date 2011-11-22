@@ -30,11 +30,10 @@ include_once(CFCT_PATH.'functions/tinymce-upload/tinymce-uploader.php');
 include_once(CFCT_PATH.'functions/tinymce-upload/image-popup.php');
 include_once(CFCT_PATH.'functions/phpquery/phpquery.php');
 include_once(CFCT_PATH.'functions/anno-xml-download.php');
-include_once(CFCT_PATH.'plugins/load.php');
 
 function anno_setup() {
 	$path = trailingslashit(TEMPLATEPATH);
-
+	
 	// i18n support
 	load_theme_textdomain('anno', $path . 'languages');
 	$locale = get_locale();
@@ -83,7 +82,7 @@ function anno_setup() {
 	register_sidebar(array_merge($sidebar_defaults, array(
 		'name' => __('Masthead Teasers', 'anno'),
 		'id' => 'masthead',
-		'description' => __('Display items on the home page masthead.'),
+		'description' => __('Display items on the home page masthead.','anno'),
 		'before_widget' => '<aside id="%1$s" class="teaser clearfix %2$s">'
 	)));
 	// Customize the Carrington Core Admin Settings Form Title
@@ -92,6 +91,16 @@ function anno_setup() {
 	add_filter('cfct_admin_settings_title', 'anno_admin_settings_menu_form_title');
 }
 add_action('after_setup_theme', 'anno_setup');
+
+
+if (!function_exists('anno_load_plugins')) {
+	// Plugins specific to certain themes can be loaded with this function
+	function anno_load_plugins() {
+		// Only include color picker in the annotum-base theme.
+		include_once(CFCT_PATH.'plugins/anno-colors/anno-colors.php');
+	}
+	add_action('init', 'anno_load_plugins');
+}
 
 // Filter to customize the Carrington Core Admin Settings Form Title
 function anno_admin_settings_menu_form_title() {
@@ -242,7 +251,7 @@ function anno_comment_form_defaults($defaults) {
 	$fields = apply_filters('comment_form_default_fields', array(
 		'author' => '<p class="row author">' . '<label for="author">' . __('Your Name', 'anno') . $req_label . '</label> <input id="author" class="type-text" name="author" type="text" value="' . esc_attr($commenter['comment_author']) . '"' . $req_attr . '></p>',
 		'email' => '<p class="row email"><label for="email">' . __('Email Address', 'anno') . $req_label . '</label> <input id="email" class="type-text" name="email" type="email" value="' . esc_attr(  $commenter['comment_author_email'] ) . '"' . $req_attr . '></p>',
-		'url' => '<p class="row url"><label for="url">' . __( 'Website' ) . '</label> <input id="url" class="type-text" name="url" type="url" value="' . esc_attr( $commenter['comment_author_url'] ) . '"></p>'
+		'url' => '<p class="row url"><label for="url">' . __( 'Website', 'anno' ) . '</label> <input id="url" class="type-text" name="url" type="url" value="' . esc_attr( $commenter['comment_author_url'] ) . '"></p>'
 	));
 	
 	$new = array(
@@ -735,11 +744,8 @@ function anno_user_email($user) {
  * @return int|WP_Error ID of new user, or, WP_Error 
  */ 
 function anno_invite_contributor($user_login, $user_email, $extra = array()) {
-	//@TODO, needs to be author as well here, not just the default WP 
-	if (!current_user_can('create_users')) {
-		wp_die(__('Cheatin&#8217; uh?'));
-	}
-
+	// Wish to be able to invite other contributors, so no create_user check
+	
 	$current_user = wp_get_current_user();
 	
 	// wp_insert_user handles all other errors
@@ -947,7 +953,7 @@ function anno_build_default_menu($args) {
 		if (!empty($items)) {
 
 			$class = !empty($args['menu_class']) ? ' class="'.esc_attr($args['menu_class']).'"' : 'class="nav"';
-			$menu = '<ul'.$class.'>'.$items.'</ul>';
+			$menu = '<ul '.$class.'>'.$items.'</ul>';
 		}
 	}
 	return $menu;
@@ -979,5 +985,47 @@ function anno_default_widgets() {
 		the_widget('WP_Widget_Meta');
 	}
 }
+
+/**
+ * Print the article ID used in many JS scripts
+ * 
+ */ 
+function anno_js_post_id($hook_suffix) {
+	global $post;
+	if (($hook_suffix == 'post-new.php' || $hook_suffix == 'post.php') && (!empty($post->post_type) && $post->post_type == 'article')) {
+?>
+<script type="text/javascript">var ANNO_POST_ID = <?php echo esc_js($post->ID); ?>;</script>
+<?php 
+	}
+}
+add_action('admin_enqueue_scripts', 'anno_js_post_id', 0);
+
+/**
+ * Determines whether or not a user can edit, based on the workflow being active or not
+ */ 
+function anno_current_user_can_edit() {
+	// User must have the WP permissions
+	if (current_user_can('edit_article')) {
+		$post_id = null;
+		if (isset($_POST['attachment_id'])) {
+			$post = get_post($_POST['attachment_id']);
+			$post_id = $post->post_parent;
+		}
+		// Do an additional check if the workflow is enabled
+		if (anno_workflow_enabled()) {
+			if (anno_user_can('edit_post', null, $post_id)) {
+				return true;
+			}
+			else {
+				return false;
+			}
+		}
+		return true;
+	}
+	return false;
+}
+
+// Remove autop, inserts unnecessary br tags in the nicely formatted HTML
+remove_filter('the_content','wpautop');
 
 ?>

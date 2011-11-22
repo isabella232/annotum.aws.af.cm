@@ -61,19 +61,15 @@
 					xml = '<img src="'+ url + '" class="_inline_graphic" alt="'+ alt_text + '"/>';
 				}
 				else {
-					// @TODO Revisit <br /> insertion for IE8 compatability 
 					caption = $('#equation-caption').val();
-					//caption = caption == '' ? '<br />' : caption;
-
 					label = $('#equation-label').val();
-					//label = label == '' ? '<br />' : label;
 
 					description = $('#equation-description', form).val();
 					description = description == '' ? '<br />' : description;
 
 					xml = '<fig>'
 								+'<img src="' + url + '" />'
-								+'<label>' + label + '</label>'
+								+'<lbl>' + label + '</lbl>'
 								+'<cap><para>' + caption + '</para></cap>'
 								+'<media xlink:href="' + url + '">'
 									+'<alt-text>' + alt_text + '</alt-text>'

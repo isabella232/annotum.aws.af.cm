@@ -1,5 +1,13 @@
 <?php
-
+/**
+ * @package anno
+ * This file is part of the Annotum theme for WordPress
+ * Built on the Carrington theme framework <http://carringtontheme.com>
+ *
+ * Copyright 2008-2011 Crowd Favorite, Ltd. All rights reserved. <http://crowdfavorite.com>
+ * Released under the GPL license
+ * http://www.opensource.org/licenses/gpl-license.php
+ */
 function anno_image_popup_head_js() {
 	if (isset($_GET['anno_action']) && $_GET['anno_action'] == 'image_popup') {
 ?>
@@ -142,6 +150,8 @@ function anno_popup_images_row_edit($attachment) {
 								<textarea name="description" id="<?php echo esc_attr('img-description-'.$attachment->ID); ?>"><?php echo esc_textarea($description); ?></textarea>
 							</label>
 						</div>
+<?php 
+/*						@TODO Find a way to maintain wrapping URL data while adhering to DTD
 						<div class="img-url-input">
 							<label for="<?php echo esc_attr('img-url-'.$attachment->ID); ?>">
 								<input id="<?php echo esc_attr('img-url-'.$attachment->ID); ?>" type="text" name="url" value="<?php echo esc_attr($url); ?>" /><span><?php _e('URL', 'anno'); ?></span>
@@ -152,6 +162,8 @@ function anno_popup_images_row_edit($attachment) {
 								<button type="button" class="button" title="<?php echo esc_attr($link); ?>"><?php _e('Attachment Post URL', 'anno'); ?></button>
 							</div>
 						</div>
+*/
+?>
 						<fieldset class="img-display">
 							<legend><?php _ex('Display', 'legend', 'anno'); ?></legend>
 							<label for="<?php echo esc_attr('img-display-figure-'.$attachment->ID); ?>" class="radio">
@@ -235,12 +247,14 @@ function anno_popup_images_row_edit($attachment) {
 								
 							?>
 						</fieldset>
+<?php if (anno_current_user_can_edit()): ?>
 						<div class="anno-mce-popup-footer">
 							<?php _anno_popup_submit_button('anno-image-save', _x('Save', 'button value', 'anno'), 'submit'); ?>
 							<input type="button" id="<?php echo esc_attr('anno-image-insert-'.$attachment->ID); ?>" class="anno-image-insert button" value="<?php _ex('Insert', 'button value', 'anno'); ?>" />
+							<input type="hidden" name="action" value="anno-img-save" />
+							<input type="hidden" name="attachment_id" value="<?php echo esc_attr($attachment->ID); ?>" />
 						</div>
-						<input type="hidden" name="action" value="anno-img-save" />
-						<input type="hidden" name="attachment_id" value="<?php echo esc_attr($attachment->ID); ?>" />
+<?php endif; ?>						
 					</form>
 				</td>
 			</tr>

@@ -1,6 +1,16 @@
 <?php
 
 /**
+ * @package anno
+ * This file is part of the Annotum theme for WordPress
+ * Built on the Carrington theme framework <http://carringtontheme.com>
+ *
+ * Copyright 2008-2011 Crowd Favorite, Ltd. All rights reserved. <http://crowdfavorite.com>
+ * Released under the GPL license
+ * http://www.opensource.org/licenses/gpl-license.php
+ */
+
+/**
  * Custom capabilities for workflow
  */ 
 function anno_remove_roles_and_capabilities() {
@@ -36,6 +46,7 @@ function anno_remove_roles_and_capabilities() {
 			'edit_others_articles',
 			'delete_article',
 			'read_article',
+			'upload_files',
 		),
 		'author' => array(
 			'edit_articles',

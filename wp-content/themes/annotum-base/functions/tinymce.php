@@ -1,6 +1,16 @@
 <?php
 
 /**
+ * @package anno
+ * This file is part of the Annotum theme for WordPress
+ * Built on the Carrington theme framework <http://carringtontheme.com>
+ *
+ * Copyright 2008-2011 Crowd Favorite, Ltd. All rights reserved. <http://crowdfavorite.com>
+ * Released under the GPL license
+ * http://www.opensource.org/licenses/gpl-license.php
+ */
+
+/**
  * Set acceptable custom tags for wp_kses
  */ 
 $allowedposttags = array_merge($allowedposttags, array(
@@ -22,7 +32,7 @@ $allowedposttags = array_merge($allowedposttags, array(
 	),
 	'heading' => array(),
 	'italic' => array(),
-	'label' => array(),
+	'lbl' => array(),
 	'license' => array(
 		'license-type' => array(),
 	),
@@ -76,7 +86,7 @@ function anno_load_editor($content, $editor_id, $settings = array()) {
 		'fig',
 		'heading',
 		'inline-graphic[xlink::href]',
-		'label',
+		'lbl',
 		'license[license-type:creative-commons]',
 		'license-p',
 		'list[list-type]',
@@ -105,7 +115,7 @@ function anno_load_editor($content, $editor_id, $settings = array()) {
 		'~xref',
 		'~inline-graphic',
 		'~alt-text',
-		'~label',
+		'~lbl',
 		'~long-desc',
 		'~copyright-statement',
 		'~copyright-holder',
@@ -145,11 +155,11 @@ function anno_load_editor($content, $editor_id, $settings = array()) {
 		'license-p[preformat|br|'.$formats_as_children.']',
 	'list[title|list-item|div|span|br]',
 		'list-item[para|xref|list|div|span|br]',
-		'disp-formula[label|tex-math|div|span|preformat|br]',
+		'disp-formula[lbl|tex-math|div|span|preformat|br]',
 		'disp-quote[para|attrib|permissions|div|span|preformat|br]',
-		'fig[label|cap|media|img|div|span|preformat|br]',
+		'fig[lbl|cap|media|img|div|span|preformat|br]',
 		'cap[title|para|xref|div|span|br]',
-		'table-wrap[label|cap|table|table-wrap-foot|permissions|div|span|preformat|br]',
+		'table-wrap[lbl|cap|table|table-wrap-foot|permissions|div|span|preformat|br]',
 		'table-wrap-foot[para|div|span|br]',
 		'td['.$formats_as_children.'|preformat|ext-link|break|list|media|inline-graphic|xref|br]',
 		'th['.$formats_as_children.'|preformat|ext-link|break|list|media|inline-graphic|xref|br]',
@@ -171,6 +181,7 @@ function anno_load_editor($content, $editor_id, $settings = array()) {
 					bold : {\'inline\' : \'bold\'},
 					italic : { \'inline\' : \'italic\'},
 					monospace : { \'inline\' : \'monospace\'},
+					preformat : {\'inline\' : \'preformat\'},
 					underline : { \'inline\' : \'underline\'},	
 				}',
 			'theme_advanced_blockformats' => 'Paragraph=para,Heading=heading,Section=sec',
@@ -180,9 +191,6 @@ function anno_load_editor($content, $editor_id, $settings = array()) {
 			'force_p_newlines' => true,
 			'force_br_newlines' => false,
 			'content_css' => trailingslashit(get_bloginfo('template_directory')).'css/tinymce.css',
-	// 		@TODO Define doctype (IE Compat?)
-			'doctype' => '<!DOCTYPE article SYSTEM \"http://dtd.nlm.nih.gov/ncbi/kipling/kipling-jp3.dtd\">',
-	//		'doctype' => '<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">',
 		),
 	);
 	// Remove WP specific tinyMCE edit image plugin.
@@ -403,9 +411,20 @@ function anno_popup_references_row_display($reference_key, $reference) {
 			</label>
 		</td>
 		<td class="reference-actions">
+<?php
+		if (anno_current_user_can_edit()) {
+?>
 			<a href="#" id="<?php echo esc_attr('reference-action-edit-'.$reference_key); ?>" class="edit"><?php _ex('Edit', 'reference action', 'anno'); ?></a>
 			<a href="#" id="<?php echo esc_attr('reference-action-delete-'.$reference_key); ?>" class="delete"><?php _ex('Delete', 'reference action', 'anno'); ?></a>
 			<?php  wp_nonce_field('anno_delete_reference', '_ajax_nonce-delete-reference'); ?>
+<?php
+		}
+		else {
+?>
+			<a href="#" id="<?php echo esc_attr('reference-action-edit-'.$reference_key); ?>" class="edit"><?php _ex('Show', 'reference action', 'anno'); ?></a>
+<?php
+		}
+?>
 		</td>
 	</tr>
 	</table>
@@ -436,16 +455,20 @@ function anno_popup_references_row_edit($reference_key, $reference, $post_id, $d
 						?>
 							<span><?php _ex('CrossRef DOI', 'input label for DOI lookup', 'anno'); ?></span>
 							<input type="text" class="short" name="doi" id="<?php echo esc_attr('doi-'.$reference_key); ?>" value="<?php echo $doi_value; ?>"<?php disabled($doi_enabled, false, true); ?>/>
+<?php if (anno_current_user_can_edit()): ?>
 							<input type="button" class="blue" name="import_doi" id="<?php echo esc_attr('doi-import-'.$reference_key); ?>" value="<?php _ex('Import', 'button label', 'anno'); ?>"<?php disabled($doi_enabled, false, true); ?>>
 							<img src="<?php echo esc_url(admin_url('images/wpspin_light.gif' )); ?>" class="ajax-loading" />
 							<?php wp_nonce_field('anno_import_doi', '_ajax_nonce-import-doi', false); ?>
+<?php endif; ?>
 						</label>
 						<label>
 							<span><?php _ex('PubMed ID (PMID)', 'input for PubMed ID lookup', 'anno'); ?></span>
 							<input type="text" class="short" name="pmid" id="<?php echo esc_attr('pmid-'.$reference_key); ?>" value="<?php echo esc_attr($reference['pmid']) ?>" />
+<?php if (anno_current_user_can_edit()): ?>
 							<input type="button" class="blue" name="import_pubmed" id="<?php echo esc_attr('pmid-import-'.$reference_key); ?>" value="<?php _ex('Import', 'button label', 'anno'); ?>">
 							<img src="<?php echo esc_url( admin_url( 'images/wpspin_light.gif' ) ); ?>" class="ajax-loading" />
 							<?php wp_nonce_field('anno_import_pubmed', '_ajax_nonce-import-pubmed', false); ?>
+<?php endif; ?>
 						</label>
 						<label>
 							<span><?php _ex('Text', 'input label for defining tables', 'anno'); ?></span>
@@ -455,9 +478,8 @@ function anno_popup_references_row_edit($reference_key, $reference, $post_id, $d
 							<span><?php _ex('URL', 'input label for defining tables', 'anno'); ?></span>
 							<input type="text" name="url" id="url" value="<?php echo esc_attr($reference['url']) ?>" />
 						</label>
-
+<?php if (anno_current_user_can_edit()): ?>
 						<div class="reference-edit-actions clearfix">
-							<?php //TODO Nonce for save ?>
 							<a href="#" id="<?php echo esc_attr('reference-action-save-'.$reference_key); ?>" class="save left">Save</a>
 							<a href="#" id="<?php echo esc_attr('reference-action-cancel-'.$reference_key); ?>" class="cancel right">Cancel</a>
 							<input type="hidden" name="ref_id" value="<?php echo esc_attr($reference_key); ?>" />
@@ -465,6 +487,7 @@ function anno_popup_references_row_edit($reference_key, $reference, $post_id, $d
 							<input type="hidden" name="action" value="anno-reference-save" />
 							<?php wp_nonce_field('anno_save_reference', '_ajax_nonce-save-reference'); ?>
 						</div>
+<?php endif; ?>						
 						<div class="clearfix"></div>
 					</form>
 				</div>
@@ -504,7 +527,6 @@ function anno_popup_references() {
 	
 ?>
 	<div id="anno-popup-references" class="anno-mce-popup">
-		<?php //TODO NONCE ?>
 		<div class="anno-mce-popup-fields">
 			<table id="anno-references">
 				<thead>
@@ -529,6 +551,7 @@ function anno_popup_references() {
 		}
 	}
 ?>
+<?php if (anno_current_user_can_edit()): ?>
 					<tr id="<?php echo esc_attr('reference-new'); ?>">
 						<td colspan="3">
 							<?php anno_popup_references_row_edit('new', array('text' => '', 'doi' => '', 'pmid' => '', 'url' => '', 'figures' => ''), $post->ID, $doi_enabled); ?>
@@ -538,6 +561,7 @@ function anno_popup_references() {
 							<?php _anno_popup_submit_button('anno-references-new', _x('New Reference', 'button value', 'anno')); ?>
 						</td>
 					</tr>
+<?php endif; ?>					
 				</tbody>
 			</table>	
 		</div>
@@ -555,7 +579,6 @@ function anno_popup_quote() {
 ?>
 <div id="anno-popup-quote" class="anno-mce-popup">
 	<form id="anno-popup-quote-form" class="" tabindex="-1">
-		<?php //TODO NONCE ?>
 		<div class="anno-mce-popup-fields">
 				<label for="quote-text">
 					<span><?php _ex('Text', 'input label for defining quotes', 'anno'); ?></span>
@@ -701,7 +724,6 @@ function anno_preload_dialogs($init) {
 <?php
 	}
 }
-// TODO better placement, so we're not loading these on non-edit pages
 add_action('after_wp_tiny_mce', 'anno_preload_dialogs', 10, 1 );
 
 
@@ -814,8 +836,8 @@ function anno_delete_reference($post_id, $ref_id) {
 	return false;
 }
 
+//@todo Update success response
 function anno_tinymce_image_save() {
-	//TODO Nonce
 	if (isset($_POST['attachment_id'])) {
 		$attachment = get_post($_POST['attachment_id']);
 		if (!empty($attachment)) {
@@ -850,14 +872,12 @@ function anno_tinymce_image_save() {
 						break;
 				}
 			}
-		//todo Update success response
 		}
 	}
 	
 	die();
 }
 add_action('wp_ajax_anno-img-save', 'anno_tinymce_image_save');
-
 
 /**
  * Prior to outputting the value of the textarea, convert a couple 
@@ -878,8 +898,12 @@ function anno_process_editor_content($content) {
 	
 	// Convert caption to cap
 	anno_replace_caption_tag($content);
-
+	
+	// Convert p to para
 	anno_replace_p_tag($content);
+	
+	// Convert label to lbl
+	anno_replace_label_tag($content);
 	
 	// Convert title to heading
 	anno_replace_title_tag($content);
@@ -933,6 +957,7 @@ function anno_validate_xml_content_on_save($html_content) {
 
 function anno_get_dtd_valid_elements() {
 	// Build big list of valid XML elements (listed in DTD)
+	// This is after the editor content is processed and converted to XML defined by DTD
 	$tags = array(
 		// Formats
 		'<bold>',
@@ -1082,9 +1107,9 @@ function anno_insert_post_data($data, $postarr) {
 		// Get our XML content for the revision
 		$content = stripslashes($data['post_content']);
 		
-		// Remove non-ascii characters
-		$content = preg_replace('/[^(\x20-\x7F)]*/','', $content);
-		
+		// Remove non-ascii gremlins
+		$content = preg_replace('/(\xa0|\xc2)/','', $content);
+		$content = str_replace(array("\r", "\r\n", "\n"), '', $content);
 		// Set XML as backup content. Filter markup and strip out tags not on whitelist.
 		$xml = anno_validate_xml_content_on_save($content);
 		$data['post_content_filtered'] = addslashes($xml);
@@ -1416,23 +1441,34 @@ add_action('anno_xml_to_html', 'anno_xml_to_html_replace_figures');
 
 /**
  * Change XML <sec> tags to HTML5 <section> tags
- * Run at priority 9 so we change the titles before global title changes happen.
  */
 function anno_xml_to_html_replace_sec($orig_xml) {
 	$sections = pq('sec');
 	if (count($sections)) {
 		foreach ($sections as $sec) {
-			$sec = pq($sec);
-			// Replace Titles
-			$title = $sec->find('title');
-			$title->replaceWith('<h2 class="title"><span>'.$title->html().'</span></h2>');
-			
+			$sec = pq($sec);			
 			// Replace sections
 			$sec->replaceWith('<section class="sec">'.$sec->html().'</section>');
 		}
 	}
 }
-add_action('anno_xml_to_html', 'anno_xml_to_html_replace_sec', 9);
+add_action('anno_xml_to_html', 'anno_xml_to_html_replace_sec');
+
+/**
+ * Change XML <title> tags to HTML5 <h2> tags
+ * Run at priority 9 so we change the titles before global title changes happen.
+ */
+function anno_xml_to_html_replace_title($orig_xml) {
+	// Replace Titles
+	$titles = pq('title');
+	if (count($titles)) {
+		foreach ($titles as $title) {
+			$title = pq($title);
+			$title->replaceWith('<h2 class="title"><span>'.$title->html().'</span></h2>');
+		}
+	}
+}
+add_action('anno_xml_to_html', 'anno_xml_to_html_replace_title', 9);
 
 /**
  * Change the XML <list> elements to proper HTML
@@ -1528,7 +1564,7 @@ function anno_xml_to_html_iterate_list_item($item) {
 function anno_xml_to_html_replace_tables($orig_xml) {
 	/*
 	'<table-wrap>',
-		'<label>',
+		'<lbl>',
 		'<caption>',
 			'<title>',
 			'<p>',
@@ -1586,11 +1622,11 @@ add_action('anno_xml_to_html', 'anno_xml_to_html_replace_tables');
  */
 function anno_xml_to_html_iterate_table($table) {
 	// Get table title & caption'
-	$figcaption = $table->children('label:first')->html();
+	$figcaption = $table->children('lbl:first')->html();
 	$table_caption = $table->children('caption:first')->html();
 	
 	// Now that we have the title and caption, get rid of the elements
-	$table->children('label:first')->remove();
+	$table->children('lbl:first')->remove();
 	$table->children('caption:first')->remove();
 	
 	$inner_table = $table->children('table');
@@ -1768,6 +1804,12 @@ function anno_xml_to_html_preformat_tag($xml) {
 }
 add_action('anno_xml_to_html', 'anno_xml_to_html_preformat_tag');
 
+/**
+ * Convert permissions block to html
+ *
+ * @param phpQueryObject $permissions_pq_obj
+ * @return void 
+ */
 function anno_convert_permissions_to_html($permissions_pq_obj) {
 	$permissions = pq($permissions_pq_obj);
 	$tpl = new Anno_Template_Utils();
@@ -1880,6 +1922,18 @@ function anno_replace_p_tag($xml) {
 }
 
 /**
+ * Convert label tag to lbl tag for display in editor
+ * Firefox has issues selecting inside a label tag when it is in a textarea
+ * 
+ * @param phpQueryObject $xml
+ * @return void
+ */
+function anno_replace_label_tag($xml) {
+	anno_convert_tag('label', 'lbl');
+}
+
+
+/**
  * Swap para tags with p tag. P tag has issues with embedded block level elements 
  * 
  * @param phpQueryObject $xml (unused, required by add_action)
@@ -1889,6 +1943,17 @@ function anno_to_xml_para_tag($xml) {
 	anno_convert_tag('para', 'p');
 }
 add_action('anno_to_xml', 'anno_to_xml_para_tag');
+
+/**
+ * Swap lbl tags with label tag.
+ * 
+ * @param phpQueryObject $xml (unused, required by add_action)
+ * @return void
+ */
+function anno_to_xml_lbl_tag($xml) {
+	anno_convert_tag('lbl', 'label');
+}
+add_action('anno_to_xml', 'anno_to_xml_lbl_tag');
 
 /**
  * Format caption content and converts cap tags to caption to 
@@ -2034,7 +2099,6 @@ function anno_doi_lookup_enabled() {
 	return !empty($crossref_login);
 }
 
-//@todo single file
 function anno_tinymce_css($hook) {
 	global $post_type;
 	if ($post_type == 'article') {

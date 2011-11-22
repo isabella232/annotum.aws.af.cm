@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package anno
  * This file is part of the Annotum theme for WordPress
@@ -27,7 +28,7 @@ class Anno_Widget_Recently extends WP_Widget {
 			'description' => __('Display the most recent posts and comments in a tabbed box.', 'anno'),
 			'classname' => 'widget-recent-posts'
 		);
-		parent::__construct('anno_recently', __('Recently&hellip;'), $args);
+		parent::__construct('anno_recently', __('Recently&hellip;', 'anno'), $args);
 		
 		$this->html_uid = uniqid('anno-recently');
 		
@@ -93,7 +94,7 @@ class Anno_Widget_Recently extends WP_Widget {
 				?>
 					<li class="recentcomments"><?php
 						/* translators: comments widget: 1: comment author, 2: post link */ 
-						printf(_x('%1$s on %2$s', 'widgets'), get_comment_author_link(), '<a href="' . esc_url(get_comment_link($comment->comment_ID)) . '">' . get_the_title($comment->comment_post_ID) . '</a>'); 
+						printf(_x('%1$s on %2$s', '\'username\' on \'post title\'', 'anno'), get_comment_author_link($comment->comment_ID), '<a href="' . esc_url(get_comment_link($comment->comment_ID)) . '">' . get_the_title($comment->comment_post_ID) . '</a>'); 
 				?></li>
 				<?php
 					}

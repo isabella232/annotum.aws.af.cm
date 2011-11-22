@@ -1,3 +1,11 @@
+/**
+ * Based on the tables plugin for tinyMCE developed by Moxiecode Systems AB
+ * Released under LGPL License.
+ *
+ * License: http://tinymce.moxiecode.com/license
+ * Contributing: http://tinymce.moxiecode.com/contributing
+ */
+
 var annoTable;
 
 (function($){
@@ -59,15 +67,13 @@ var annoTable;
 			var formObj = $('#anno-tinymce-table-form');
 			
 			tinyMCEPopup.restoreSelection();
-			
-			//TODO validation
-			
+					
 			cols = $('input[name$="cols"]', formObj).val();
 			rows = $('input[name$="rows"]', formObj).val();
 			label = $('input[name$="label"]', formObj).val();
 			caption = $('textarea[name$="caption"]', formObj).val();
 			
-			html += '<table-wrap><label>' + label + '</label><cap><para>' + caption + '</para></cap><table>';
+			html += '<table-wrap><lbl>' + label + '</lbl><cap><para>' + caption + '</para></cap><table>';
 			html += '<thead>';
 			html += '<tr>';
 			for (var x=0; x<cols; x++) {

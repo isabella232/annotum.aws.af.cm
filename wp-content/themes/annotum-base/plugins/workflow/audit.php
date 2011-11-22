@@ -1,6 +1,16 @@
 <?php
 
 /**
+ * @package anno
+ * This file is part of the Annotum theme for WordPress
+ * Built on the Carrington theme framework <http://carringtontheme.com>
+ *
+ * Copyright 2008-2011 Crowd Favorite, Ltd. All rights reserved. <http://crowdfavorite.com>
+ * Released under the GPL license
+ * http://www.opensource.org/licenses/gpl-license.php
+ */
+
+/**
  * Saves an event in post meta to be used when outputting an audit log.
  * 
  * @param int $post_id ID of the post that the event occurred for
@@ -48,7 +58,7 @@ function annowf_audit_log($post) {
 		return $html;
 	}
 
-	// Indexes start at 1 to prevent empty() check failures
+	// Indices start at 1 to prevent empty() check failures
 	$event_array = array(
 		0 => '',
 		1 => _x('Created a revision', 'article audit event', 'anno'),
@@ -166,6 +176,8 @@ add_action('init', 'annowf_registered_post_meta_items');
 /**
  * Display callback for post meta in revisions
  * 
+ * @param string $meta_value 
+ * @return string HTML markup
  */ 
 function annowf_meta_revision_display($meta_value) {
 	$html = '';

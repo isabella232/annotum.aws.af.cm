@@ -1,13 +1,14 @@
 <?php
 
-/*
-Plugin Name: CF Colors 
-Description: Selection of color swatches from Adobe Kuler.
-Version: dev 
-Author: Crowd Favorite
-Author URI: http://crowdfavorite.com
-*/
-
+/**
+ * @package anno
+ * This file is part of the Annotum theme for WordPress
+ * Built on the Carrington theme framework <http://carringtontheme.com>
+ *
+ * Copyright 2008-2011 Crowd Favorite, Ltd. All rights reserved. <http://crowdfavorite.com>
+ * Released under the GPL license
+ * http://www.opensource.org/licenses/gpl-license.php
+ */
 
 /* TODO
 
@@ -31,7 +32,6 @@ function cfcp_admin_init() {
 		// our js
 		wp_enqueue_script('cf-colors', $plugin_dir.'/js/cf-colors.js', array('jquery', 'colorpicker', 'jquery-ui-sortable'), CF_ANNO_COLORS_VERSION);
 		wp_localize_script('cf-colors', 'cf_kuler_settings', array(
-			'preview_css_template' => $css_preview_template,
 			'loading' => 'Loading...'
 		));	
 	}

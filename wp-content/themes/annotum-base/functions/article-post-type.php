@@ -1,6 +1,16 @@
 <?php 
 
 /**
+ * @package anno
+ * This file is part of the Annotum theme for WordPress
+ * Built on the Carrington theme framework <http://carringtontheme.com>
+ *
+ * Copyright 2008-2011 Crowd Favorite, Ltd. All rights reserved. <http://crowdfavorite.com>
+ * Released under the GPL license
+ * http://www.opensource.org/licenses/gpl-license.php
+ */
+
+/**
  * Register article post type
  */
 function anno_register_post_types() {
@@ -100,7 +110,6 @@ function anno_article_meta_boxes() {
 
 	if (current_user_can('editor') || current_user_can('administrator')) {
 		add_meta_box('convert', _x('Convert To Post', 'Meta box title', 'anno'), 'anno_convert_meta_box', 'article', 'side', 'low');
-		add_meta_box('doi-deposit', _x('DOI Deposit', 'Meta box title', 'anno'), 'anno_deposit_doi_meta_box', 'article', 'side', 'low');
 	}
 }
 add_action('add_meta_boxes_article', 'anno_article_meta_boxes');
@@ -189,7 +198,7 @@ function anno_featured_meta_box($post) {
 	$checked = get_post_meta($post->ID, '_anno_featured', true);
 ?>
 	<input id="anno-featured" type="checkbox" value="on" name="anno_featured"<?php checked($checked, 'on', true); ?> />
-	<label for="anno-featured"><?php _ex('Feature this article to appear in the home page carousel', 'Featured post meta box label', 'anno'); ?></label>
+	<label for="anno-featured"><?php _ex('Appear in the home page carousel', 'Featured post meta box label', 'anno'); ?></label>
 <?php	
 }
 

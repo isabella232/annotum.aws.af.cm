@@ -52,12 +52,8 @@ jQuery(document).ready( function($) {
 			xml = '<img src="'+ img_url + '" class="_inline_graphic" alt="'+ alt_text + '"/>';
 		}
 		else {
-			// @TODO Revisit <br /> insertion for IE8 compatability 
 			caption = $('#img-caption-' + attachment_id).val();
-			//caption = caption == '' ? '<br />' : caption;
-
 			label = $('#img-label-' + attachment_id).val();
-			//label = label == '' ? '<br />' : label;
 
 			description = $('#img-description-' + attachment_id, form).val();
 			description = description == '' ? '<br />' : description;
@@ -65,10 +61,9 @@ jQuery(document).ready( function($) {
 			copyright_holder = $('#img-copyholder-' + attachment_id, form).val();
 			license = $('#img-license-' + attachment_id, form).val();
 						
-			// @TODO Caption Title Support
 			xml = '<fig>'
 						+'<img src="' + img_url + '" />'
-						+'<label>' + label + '</label>'
+						+'<lbl>' + label + '</lbl>'
 						+'<cap><para>' + caption + '</para></cap>'
 						+'<media xlink:href="' + img_url + '">'
 							+'<alt-text>' + alt_text + '</alt-text>'

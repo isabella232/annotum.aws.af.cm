@@ -1,15 +1,20 @@
 <?php 
+
 /**
- * Text widget class
+ * @package anno
+ * This file is part of the Annotum theme for WordPress
+ * Built on the Carrington theme framework <http://carringtontheme.com>
  *
- * @since 2.8.0
+ * Copyright 2008-2011 Crowd Favorite, Ltd. All rights reserved. <http://crowdfavorite.com>
+ * Released under the GPL license
+ * http://www.opensource.org/licenses/gpl-license.php
  */
 class WP_Widget_Solvitor_Ad extends WP_Widget_Text {
 
 	function WP_Widget_Solvitor_Ad() {
-		$widget_ops = array('classname' => 'widget_solvitor_ad', 'description' => __('A sidebar advertisement'));
+		$widget_ops = array('classname' => 'widget_solvitor_ad', 'description' => __('A sidebar advertisement', 'anno'));
 		$control_ops = array('width' => 400, 'height' => 350);
-		$this->WP_Widget('advertisement', __('Advertisement'), $widget_ops, $control_ops);
+		$this->WP_Widget('advertisement', __('Advertisement', 'anno'), $widget_ops, $control_ops);
 	}
 	
 	function widget( $args, $instance ) {

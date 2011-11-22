@@ -1,6 +1,16 @@
 <?php
 
 /**
+ * @package anno
+ * This file is part of the Annotum theme for WordPress
+ * Built on the Carrington theme framework <http://carringtontheme.com>
+ *
+ * Copyright 2008-2011 Crowd Favorite, Ltd. All rights reserved. <http://crowdfavorite.com>
+ * Released under the GPL license
+ * http://www.opensource.org/licenses/gpl-license.php
+ */
+
+/**
  * AJAX handler that looks up an article based on PMID and parses the data for a reference.
  * Echos a json encoded array
  * 
@@ -594,10 +604,8 @@ function anno_doi_deposit_ajax() {
 	}
 
 	$article_id = (int) $_POST['article_id'];
-//	$response = anno_doi_article_deposit($article_id, get_current_user_id());
-	// If we get an error that the DOI already exists: 
-//	$response['regenerate_markup'] = anno_regenerate_doi_markup();
-// 	echo json_encode($response);
+	$response = anno_doi_article_deposit($article_id, get_current_user_id());
+ 	echo json_encode($response);
 	die();
 }
 add_action('wp_ajax_anno-doi-deposit', 'anno_doi_deposit_ajax');

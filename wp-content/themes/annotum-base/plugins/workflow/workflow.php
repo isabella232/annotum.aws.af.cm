@@ -1,5 +1,15 @@
 <?php
 
+/**
+ * @package anno
+ * This file is part of the Annotum theme for WordPress
+ * Built on the Carrington theme framework <http://carringtontheme.com>
+ *
+ * Copyright 2008-2011 Crowd Favorite, Ltd. All rights reserved. <http://crowdfavorite.com>
+ * Released under the GPL license
+ * http://www.opensource.org/licenses/gpl-license.php
+ */
+
 // Translateable workflow states
 global $annowf_states;
 $annowf_states = array(
@@ -21,9 +31,6 @@ function annowf_meta_boxes() {
 	// Remove the WP Publish box
 	remove_meta_box('submitdiv', 'article', 'side');
 
-	// Remove discussion box
-	remove_meta_box('commentstatusdiv', 'article', 'normal');
-
 	// Remove author box
 	remove_meta_box('authordiv', 'article', 'normal');
 		
@@ -35,16 +42,20 @@ function annowf_meta_boxes() {
 	}
 	
 	// Remove Revisions box in favor of audit log box
-	//remove_meta_box('revisionsdiv', 'article', 'normal');
 	if (anno_user_can('view_audit')) {
 		add_meta_box('audit_log', _x('Audit Log', 'Meta box title', 'anno'), 'annowf_audit_log', 'article', 'normal', 'low');
 	}
 	
-	// Remove taxonomy/edit boxes when a user is unable to save/edit
+	// Remove taxonomy, edit, featured, boxes when a user is unable to save/edit
 	if (!anno_user_can('edit_post', null, $post->ID)) {
 		remove_meta_box('tagsdiv-article_tag', 'article', 'side');
 		remove_meta_box('article_category_select', 'article', 'side');
 		remove_meta_box('postimagediv', 'article', 'side', 'low');
+	}
+	
+	//@TODO potential role hook here
+	if (!(current_user_can('editor') || current_user_can('administrator'))) {
+		remove_meta_box('commentstatusdiv', 'article', 'normal');
 	}
 
 	
@@ -675,6 +686,7 @@ function annowf_get_round($post_id) {
 
 /**
  * Typeahead user search AJAX handler. Based on code in WP Core 3.1.2
+ * note this searches the entire users table - on multisite you can add existing users from other blogs to this one.
  */ 
 function annowf_user_search() {
 	global $wpdb;
@@ -683,18 +695,6 @@ function annowf_user_search() {
 	$s = trim( $s );
 	if ( strlen( $s ) < 2 )
 		die; // require 2 chars for matching
-
-	// @TODO Search with get_users
-	// @TODO modify query, remove lookup on user_nicename
-	// @TODO Prevent other search lookup (email, url, ID), see WP_User_Query
-	
-/*	
-	$user = get_users(array(
-		'meta_key' => '',
-		'meta_value' => '',
-		'meta_compare' => 'LIKE',
-		));
-*/
 
 	$results = $wpdb->get_col($wpdb->prepare("
 		SELECT user_login
@@ -710,9 +710,9 @@ add_action('wp_ajax_anno-user-search', 'annowf_user_search');
 
 /**
  * Metabox for posts that have been cloned from this post
+ * @todo check for trash/deleted
  */ 
 function annowf_cloned_meta_box($post) {
-//TODO check for trash/deleted	
 	$cloned_from = get_post_meta($post->ID, '_anno_cloned_from', true);
 	$cloned_from_post = get_post($cloned_from_post);
 	if (!$cloned_from_post) {

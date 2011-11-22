@@ -1,5 +1,17 @@
 <?php
 
+/**
+ * @package anno
+ * This file is part of the Annotum theme for WordPress
+ * Built on the Carrington theme framework <http://carringtontheme.com>
+ *
+ * Copyright 2008-2011 Crowd Favorite, Ltd. All rights reserved. <http://crowdfavorite.com>
+ * Released under the GPL license
+ * http://www.opensource.org/licenses/gpl-license.php
+ * 
+ * Based on code found in WordPress Importer plugin
+ */
+
 if (!defined('WP_LOAD_IMPORTERS'))
 	return;
 	
@@ -1376,7 +1388,7 @@ foreach ($this->authors as $author_key => $author_data) {
 		$size = wp_convert_bytes_to_hr( $bytes );
 		$upload_dir = wp_upload_dir();
 		if ( ! empty( $upload_dir['error'] ) ) :
-			?><div class="error"><p><?php _e('Before you can upload your import file, you will need to fix the following error:'); ?></p>
+			?><div class="error"><p><?php _e('Before you can upload your import file, you will need to fix the following error:', 'anno'); ?></p>
 			<p><strong><?php echo $upload_dir['error']; ?></strong></p></div><?php
 		else :
 	?>
@@ -1392,12 +1404,12 @@ foreach ($this->authors as $author_key => $author_data) {
 		}
 	?>
 	<p>
-	<label for="upload"><?php _e( 'Choose a file from your computer:' ); ?></label> (<?php printf( __('Maximum size: %s' ), $size ); ?>)
+	<label for="upload"><?php _e( 'Choose a file from your computer:', 'anno' ); ?></label> (<?php printf( __('Maximum size: %s', 'anno' ), $size ); ?>)
 	<input type="file" id="upload" name="import" size="25" />
 	<input type="hidden" name="action" value="save" />
 	<input type="hidden" name="max_file_size" value="<?php echo $bytes; ?>" />
 	</p>
-	<?php submit_button( __('Upload file and import'), 'button' ); ?>
+	<?php submit_button( __('Upload file and import','anno'), 'button' ); ?>
 	</form>
 	<?php
 		endif;
