@@ -15,7 +15,7 @@ define('DB_COLLATE', '');
 define ('WPLANG', '');
 define('WP_DEBUG', false);
 
-define( 'WP_DEFAULT_THEME', 'annotum' );
+define( 'WP_DEFAULT_THEME', 'annotum-base' );
 
 require('wp-salt.php');
 
