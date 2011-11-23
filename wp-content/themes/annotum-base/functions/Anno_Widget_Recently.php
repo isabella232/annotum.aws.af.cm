@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @package anno
  * This file is part of the Annotum theme for WordPress
